@@ -35,6 +35,21 @@ const saveUrlShortener = async urlShortener => {
 
 app.use(express.static('public'));
 
+app.get('/:shortUrl', async (req, res) => {
+  if (req.params.shortUrl) {
+    try {
+      const { originalUrl } = await UrlShortener.findOne({
+        shortUrl: req.params.shortUrl,
+      });
+      res.redirect(originalUrl);
+    } catch (err) {
+      res.json({ error: 'Unable to locate URL' });
+    }
+  } else {
+    res.json({ error: 'This URL does not exist in the database' });
+  }
+});
+
 app.get('/new/:url(*)', async (req, res) => {
   if (validUrl.isWebUri(req.params.url)) {
     const urlShortener = new UrlShortener({
